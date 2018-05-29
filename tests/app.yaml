@@ -1,0 +1,114 @@
+app_name: thriftpy.encoder
+settings: encoder.settings
+# slack_channel: vcs
+services:
+    thrift:
+        app: encoder.service:service
+        thrift_file: encoder/encoder.thrift
+        worker_connections: 1000
+
+
+
+# Allow psycogreen enables psycopg2 to work with coroutine libraries.
+# patch_psycopg2: true
+
+#
+# ************************ Async Settings **************************
+#
+# Async workers deal with tasks coming from other places sent by
+# `send_task` to *THIS* service.
+#
+# NOTE: If what you want is merely to `send_task` to *OTHER*
+# services, you don't need this.
+#
+# And you need to contact python arch team to register your service
+# before uncommenting following lines.
+#
+# Two types of async workers now supported: CELERY and MYSQL.
+#
+# **USAGE:
+#
+# If celery worker is your choice, uncomment related config items
+# and make sure:
+#     1. In encoder/settings.py, `ASYNC_ENABLED` is True
+#     2. Config items in encoder/celeryconfig.py configured
+#
+#     Celery related config items:
+#         >> celery_settings: encoder.celeryconfig
+#         >> async_workers:
+#         >>   - name: thriftpy.encoder
+#         >>     size: 1
+#         >>     type: celery
+#
+#
+# If mysql worker is your choice, uncomment related config items
+# and make sure:
+#     1. Cannot show how here, see tutorial mysql worker part.
+#
+#     Mysql related config items:
+#         >> async_workers:
+#         >>   - name: thriftpy.encoder
+#         >>     type: mysql
+#         >>     entry: encoder.tasks:do_mysql_work
+#
+#
+# celery_settings: encoder.celeryconfig
+# async_workers:
+#     - name: thriftpy.encoder
+#       size: 8
+#       type: celery
+#     - name: thriftpy.encoder
+#       type: mysql
+#       entry: encoder.tasks:do_mysql_work
+
+
+# ************************ Message Settings **************************
+#
+# If RMQ is needed in your app, uncomment RMQ related config below.
+#
+# NOTE: If single broker just meets your requirement, configure only
+# one broker.
+#
+# message_consumer:
+#     - broker_urls: encoder.settings:EOS_BROKER_URLS
+#       process_num: 3
+#       handler_type: SYNC
+#       async_pool_size: 50
+#       queues:
+#           - queue_name: queue_name_1
+#             handler: note.message_handlers:handle_message_1
+#             no_ack: false
+#             auto_ack: true
+#             always_ack: false
+#             on_error: note.message_handlers:handle_error_1
+#             bindings:
+#                 - exchange: note_fanout
+#           - queue_name: queue_name_2
+#             handler: note.message_handlers:handle_message_2
+#             bindings:
+#                 - exchange: note_headers
+#                   arguments:
+#                       arch: note
+#     - broker_urls: encoder.settings:EUS_BROKER_URLS
+#       queues:
+#           - queue_name: queue_name_3
+#             handler: note.message_handlers:handle_message_3
+#             bindings:
+#                 - exchange: note_direct
+#                   routing_key: order.event
+#           - queue_name: queue_name_4
+#             handler: note.message_handlers:handle_message_4
+#             bindings:
+#                 - exchange: note_topic
+#                   routing_key: order.event.#
+#
+#
+
+# ************************ Crontab Settings **************************
+#
+# If crontab is needed, uncomment crontab related config below.
+#
+# crontabs:
+#     - name: called every 5 minutes
+#       cron: "*/5 * * * *"
+#       handler: note.cron_handlers:main
